@@ -4,7 +4,9 @@
 
 Dewasa ini, perkembangan dan pertumbuhan teknologi digital semakin pesat, sehingga keberadaan hal-hal terutama yang bersifat digital menjadi semakin banyak. Hal ini menyebabkan peningkatan jumlah permintaan akan rekomendasi terhadap hal-hal yang bersifat digital. Salah satu hal yang saat ini masih diminati adalah buku atau bahan bacaan. Akibat perkembangan teknologi, saat ini terdapat sangat banyak jenis buku dengan bidang yang beragam. Banyaknya jumlah buku yang ada semakin lama pasti akan menyulitkan pembaca untuk memilih bahan bacaan yang tepat sesuai dengan minat dan preferensi mereka. Hal ini akan menjadi tantangan dan dirasa penting untuk diselesaikan.
 
-Dampak dari semakin banyak buku ini juga dapat berakibat negatif bagi penulis buku maupun percetakan, karena akan membuat pembaca atau pembeli menjadi bingung dalam memilih buku yang sesuai dengan keinginan mereka. Hal ini dapat menyebabkan penurunan profit bagi perusahaan percetakan maupun bagi penulis, selain itu juga berdampak negatif bagi pembaca karena semakin menyulitkan mereka dalam mencari buku. Oleh karena itu, diperlukan sebuah sistem rekomendasi yang dapat memberikan rekomendasi pilihan buku kepada pembaca sehingga memudahkan mereka dalam memilih buku yang ingin dibeli atau dibaca. Selain pada sisi bisnis, sistem rekomendasi buku juga dapat diterapkan pada perpustakaan sehingga dapat memberikan rekomendasi buku kepada siswa-siswa khususnya di sekolah [[1]](https://www.jurnal.stmik-yadika.ac.id/index.php/spirit/article/view/52).
+Dampak dari semakin banyak buku ini juga dapat berakibat negatif bagi penulis buku maupun percetakan, karena akan membuat pembaca atau pembeli menjadi bingung dalam memilih buku yang sesuai dengan keinginan mereka. Hal ini dapat menyebabkan penurunan profit bagi perusahaan percetakan maupun bagi penulis, selain itu juga berdampak negatif bagi pembaca karena semakin menyulitkan mereka dalam mencari buku. Oleh karena itu, diperlukan sebuah sistem rekomendasi yang dapat memberikan rekomendasi pilihan buku kepada pembaca sehingga memudahkan mereka dalam memilih buku yang ingin dibeli atau dibaca. 
+
+Hal-hal tersebut juga akan berdampak terhadap ekosistem buku bacaan dan akan membuat pengguna semakin malas untuk membaca buku, sehingga dapat menyebabkan dampak negatif pada sisi bisnis buku.  Selain pada sisi bisnis, sistem rekomendasi buku juga dapat diterapkan pada perpustakaan sehingga dapat memberikan rekomendasi buku kepada siswa-siswa khususnya di sekolah [[1]](https://www.jurnal.stmik-yadika.ac.id/index.php/spirit/article/view/52).
 
 Beberapa penelitian terdahulu telah menggunakan beberapa metode dalam membuat sistem rekomendasi, salah satunya adalah content-based filtering dan collaborative filtering [[2]](https://link.springer.com/chapter/10.1007/978-981-15-0184-5_29) [[3]](https://ieeexplore.ieee.org/abstract/document/7684166). Sistem rekomendasi dengan kedua metode tersebut dapat menyelesaikan permasalahan untuk membuat sistem rekomendasi buku.
 
@@ -87,18 +89,18 @@ Fitur-fitur yang ada pada dataset users:
 
 # Data Analysis & EDA
 
-![](https://i.ibb.co/kXpv6G1/book-published.png)
+![](docs/book-published.png)
 **Gambar 1. Total Book Published from 1990 - 2024**
 
 Berdasarkan Gambar 1. dapat diketahui bahwa jumlah buku yang diterbitkan setidaknya dari tahun 1990an sampai tahun 2000an awal cenderung mengalami peningkatan.
 
 
-![](https://i.ibb.co/Y8f1tyK/book-rating.png)
+![](docs/book-rating.png)
 **Gambar 2. Book Rating Distribution**
 
 Berdasarkan Gambar 2. dapat diketahui bahwa mayoritas rating yang diberikan oleh user adalah 0, kemudian disusul dengan rating 8 dan rating 10.
 
-![](https://i.ibb.co/tCPCJjD/user-location.png)
+![](docs/user-location.png)
 **Gambar 3. Top 10 User Locations**
 
 Berdasarkan Gambar 3. dapat diketahui bahwa mayoritas user berasal dari Amerika, kemudian disusul Spanyol, dan Inggris.
@@ -113,7 +115,7 @@ Selain itu, terdapat beberapa informasi lainnya yang didapatkan yaitu:
 
 ## Data Preparation
 
-1. Menghilangkan missing value dan data yang duplikat. Selain itu juga dilakukan penghilangan outlier pada data user khususnya melalui fitur `Age`, hal ini dilakukan untuk meningkatkan akurasi model dan mengurangi bias.
+1. Menghilangkan missing value dan data yang duplikat. Selain itu juga dilakukan penghilangan outlier pada data user khususnya melalui fitur `Age` menggunakan teknik `IQR`, yaitu dengan memberikan batasan dari Q1 sampai Q3. Hal ini dilakukan karena terdapat beberapa data umur yang bernilai 0, sehingga dirasa perlu dilakukan untuk meningkatkan akurasi model dan mengurangi bias. 
 2. Melakukan penggabungan seluruh dataset menjadi sebuah dataset tunggal menggunakan skema inner join untuk memastikan seluruh data tidak memiliki nilai kosong, hal ini dimaksudkan agar mempermudah proses training dan memastikan integritas data.
 3. Untuk content based filtering dilakukan pemilihan 20.000 data pertama untuk mengurangi penggunaan memory yang berlebihan karena jumlah data sangat besar akibat matriks yang terbentuk.
 
@@ -141,7 +143,11 @@ Berikut adalah hasil rekomendasi buku menggunakan content-based filtering untuk 
 ### Collaborative Filtering
 Pada Collaborative Filtering, setelah fitur dimapping, selanjutkan akan dibuat sebuah class `BookRecommender` yang melakukan inheritance dari Keras Model. Tahapan yang terdapat pada model ini yakni diawali dengan proses embedding terhadap data user dan data buku. Selanjutnya yaitu dilakukan operasi perkalian dot product antara kedua embedding tersebut. Dapat juga dilakukan penambahan bias pada setiap user dan buku. Tahap terakhir yakni penetapan skor kecocokan dalam skala [0,1] sehingga menggunakan fungsi aktivasi sigmoid.
 
+Pemilihan sigmoid dilakukan karena kita ingin memberikan skor dalam rentang 0 sampai 1, sehingga fungsi sigmoid adalah fungsi yang paling tepat. Akan tetapi, jika kita melakukan klasifikasi multiclass misalnya, maka yang tepat adalah softmax.
+
 Model yang dibuat kemudian di compile dengan loss function Binary Crossentropy, optimizer Adam, dan metrik evaluasi Root Mean Squared Error (RMSE). Proses pelatihan model dilakukan dengan batch size 1024 dan jumlah epochs 10.
+
+Loss function binary crossentropy dipilih karena sesuai dengan fungsi aktivasi yang kita gunakan, yaitu sigmoid. Dengan binary crossentropy, kita dapat menghitung loss yang dihasilkan dari model kita.
 
 Model kemudian dilatih dan selanjutnya akan dilakukan proses pencarian rekomendasi buku kepada sebuah user secara acak dengan cara mencari buku-buku yang belum pernah dibaca user, kemudian daftar buku-buku tersebut akan diberikan kepada model untuk di predict sehingga menghasilkan daftar rekomendasi buku.
 
@@ -184,11 +190,13 @@ $$RMSE = \sqrt{\frac{1}{n} \Sigma_{i=1}^n({y}-\hat{y})^2}$$
 
 Pada persamaan di atas, $\hat{y}$ merupakan prediksi *rating* yang dibuat model *machine learning*, ${y}$ merupakan *rating* sebenarnya, dan ${n}$ merupakan jumlah data.
 
-![](https://i.ibb.co/K93BRfF/history.png)
+![](docs/history.png)
 
 #### Gambar 4. Visualisasi Proses Pelatihan Model **RecommenderNet**
 
 Berdasarkan Gambar 4, dapat diketahui bahwa terjadi tren penurunan RMSE di setiap *epoch* baik pada data latih maupun data validasi. Ini menandakan bahwa model dapat dengan baik memelajari data yang dihadapi. Dari visualisasi proses pelatihan ini, diperoleh nilai eror akhir sekitar 0.3 dengan eror pada data validasi sekitar 0.4.
+
+Dari plot yang diberikan, terlihat bahwa model sudah goodfit dimana penurunan loss pada train data (garis kuning) sudah beriringan dengan penurunan loss pada data validation (garis biru).
 
 
 
